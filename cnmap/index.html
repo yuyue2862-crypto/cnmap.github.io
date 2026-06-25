@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国行政区卡通亮灯挑战</title>
+    <!-- 引入自定义样式 -->
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Anime.js 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <!-- 预加载音乐 -->
+    <link rel="preload" href="resources/bgm.mp3" as="audio">
+    <link rel="preload" href="resources/congratulations.mp3" as="audio">
+</head>
+<body>
+    <!-- 居中容器 -->
+    <div class="center-container">
+        <div class="main-wrapper">
+            <!-- 游戏主标题 -->
+            <h1 class="game-title">🇨🇳 中国行政区亮灯挑战 🇨🇳</h1>
+
+            <div class="game-container">
+                <!-- 左侧：地图交互区 -->
+                <main class="map-stage">
+                    <div id="map-container">
+                        <!-- 中国地图底图 -->
+                        <img id="china-map-bg" src="resources/china_map_cartoon.PNG" alt="中国地图底图">
+                        
+                        <!-- 最终完成的彩色地图（初始隐藏） -->
+                        <img id="china-map-colorful" class="hidden" src="resources/china_map_colorful.png" alt="中国行政区彩色地图">
+                        
+                        <!-- 透明覆盖层，用于放置各省的感应区域 -->
+                        <div id="provinces-overlay">
+                            <!-- JavaScript 将动态在这里生成 34 个 .province-area -->
+                        </div>
+                        
+                        <!-- 完成特效层 -->
+                        <div id="completion-effects" class="hidden"></div>
+                    </div>
+                </main>
+
+                <!-- 右侧：控制与掉落区 -->
+                <aside class="sidebar">
+                    <!-- 游戏信息面板 -->
+                    <div class="info-panel cartoon-box">
+                        <h2 id="game-status">🎮 点击"开始挑战"!</h2>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">总进度:</span>
+                                <span id="progress-text" class="stat-value">0 / 34</span>
+                            </div>
+                            <!-- 分阶段计时显示 -->
+                            <div class="stat-item timer-box phase1-timer">
+                                 <span class="stat-label">第一关(简称)耗时:</span>
+                                 <span id="timer-phase1" class="stat-value">00:00</span>
+                            </div>
+                            <div class="stat-item timer-box phase2-timer disabled">
+                                 <span class="stat-label">第二关(中心)耗时:</span>
+                                 <span id="timer-phase2" class="stat-value">00:00</span>
+                            </div>
+                        </div>
+                        <!-- 新增：继续挑战按钮 -->
+                        <button id="continue-game-btn" class="cartoon-btn hidden">继续挑战第二关</button>
+                        <button id="start-game-btn" class="cartoon-btn">开始挑战!</button>
+                    </div>
+
+                    <!-- 方块掉落区域 -->
+                    <div id="falling-arena" class="cartoon-box arena-bg">
+                        <!-- JavaScript 将动态在这里生成 .falling-block -->
+                        <div class="arena-placeholder-text">方块将在这里掉落...</div>
+                    </div>
+                </aside>
+            </div>
+            
+            <!-- 完成庆祝弹窗 -->
+            <div id="celebration-modal" class="hidden">
+                <div class="celebration-content">
+                    <div class="celebration-header">
+                        <h2>🎉 恭喜通关！ 🎉</h2>
+                        <div class="fireworks"></div>
+                    </div>
+                    <div class="celebration-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">第一关用时:</span>
+                            <span id="final-phase1-time" class="stat-value">00:00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">第二关用时:</span>
+                            <span id="final-phase2-time" class="stat-value">00:00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">总用时:</span>
+                            <span id="final-total-time" class="stat-value">00:00</span>
+                        </div>
+                    </div>
+                    <div class="celebration-message">
+                        <p>你已成功点亮所有中国行政区！</p>
+                        <p>点击下方按钮可以重新开始挑战</p>
+                    </div>
+                    <button id="restart-btn" class="cartoon-btn celebration-btn">再玩一次</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 背景音乐元素 -->
+    <audio id="background-music" loop preload="auto">
+        <source src="resources/bgm.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+    
+    <!-- 祝贺音乐元素 -->
+    <audio id="celebration-music" preload="auto">
+        <source src="resources/congratulations.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+
+    <!-- 引入主逻辑脚本 -->
+    <script src="main.js"></script>
+</body>
+</html>

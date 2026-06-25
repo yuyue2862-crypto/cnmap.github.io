@@ -1,0 +1,577 @@
+/* 全局设置：尝试使用看起来比较活泼的字体 */
+:root {
+    --theme-blue: #5dade2;
+    --theme-yellow: #f7dc6f;
+    --theme-pink: #f1948a;
+    --theme-green: #82e0aa;
+    --theme-dark: #2c3e50;
+    --cartoon-border: 3px solid var(--theme-dark);
+    --cartoon-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: "Comic Sans MS", "Arial Rounded MT Bold", "幼圆", sans-serif;
+    background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+    color: var(--theme-dark);
+    overflow: auto;
+    position: relative;
+}
+
+/* 居中容器 */
+.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 游戏主容器 */
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 1317px;
+    height: 960px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 标题样式 */
+.game-title {
+    color: white;
+    text-shadow: 3px 3px 0px var(--theme-dark);
+    margin: 10px 0;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+}
+
+/* 游戏主容器布局 - 固定为1317x960 */
+.game-container {
+    display: flex;
+    width: 1297px;
+    height: 850px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border: var(--cartoon-border);
+    border-radius: 20px;
+    box-shadow: var(--cartoon-shadow);
+    overflow: hidden;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* --- 左侧地图区 --- */
+.map-stage {
+    flex: 4;
+    position: relative;
+    background-color: #ebf5fb;
+    border-radius: 15px;
+    border: 2px dashed var(--theme-blue);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+
+#map-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+
+/* 地图底图 */
+#china-map-bg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    opacity: 0.8;
+    pointer-events: none;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+    z-index: 1;
+    transition: opacity 1s ease;
+}
+
+/* 彩色完成地图 */
+#china-map-colorful {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 3;
+    opacity: 0;
+    animation: fadeInColorful 2s forwards;
+}
+
+@keyframes fadeInColorful {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* 覆盖层和感应区域 - 关键调整 */
+#provinces-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.province-area {
+    position: absolute;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: transparent;
+    pointer-events: auto;
+    cursor: crosshair;
+    background-color: rgba(255, 255, 255, 0);
+    backdrop-filter: blur(0px);
+    z-index: 2;
+}
+
+/* 拖拽经过时的效果 */
+.drag-over, .province-area.touch-hover {
+    background-color: rgba(93, 173, 226, 0.5);
+    border: 3px dotted var(--theme-blue);
+    transform: scale(1.1);
+    backdrop-filter: blur(2px);
+}
+
+/* 成功匹配后的状态 */
+.province-area.matched-abbr {
+    color: var(--theme-dark) !important;
+    background-color: var(--theme-pink);
+    border: 2px solid var(--theme-dark);
+    box-shadow: 0 0 10px var(--theme-pink) inset;
+    animation: pulse 0.8s forwards;
+}
+
+.province-area.matched-center {
+    color: var(--theme-dark) !important;
+    background-color: var(--theme-yellow);
+    border: 2px solid var(--theme-dark);
+    box-shadow: 0 0 10px var(--theme-yellow) inset;
+    animation: pulse 0.8s forwards;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 完成特效层 */
+#completion-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* --- 右侧侧边栏 --- */
+.sidebar {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 350px;
+    max-width: 400px;
+}
+
+/* 卡通风格盒子通用样式 */
+.cartoon-box {
+    background: white;
+    border: var(--cartoon-border);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--cartoon-shadow);
+}
+
+/* 信息面板 */
+.info-panel {
+    background-color: #fef9e7;
+    min-height: 180px;
+}
+
+#game-status {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: var(--theme-blue);
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.stat-label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.stat-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.3rem;
+    color: var(--theme-dark);
+}
+
+.timer-box.phase1-timer { border-left: 5px solid var(--theme-pink); }
+.timer-box.phase2-timer { border-left: 5px solid var(--theme-yellow); }
+
+.timer-box.disabled .stat-value,
+.timer-box.disabled .stat-label { color: #aaa; }
+
+/* 按钮容器 */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* 卡通按钮 */
+.cartoon-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    font-family: inherit;
+    color: white;
+    background-color: var(--theme-green);
+    border: var(--cartoon-border);
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: var(--cartoon-shadow);
+    transition: all 0.1s;
+    text-transform: uppercase;
+}
+
+.cartoon-btn:hover {
+    background-color: #2ecc71;
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.2);
+}
+
+.cartoon-btn:active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+.cartoon-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+}
+
+/* 掉落竞技场 */
+#falling-arena {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #a9cce3, #f9e79f);
+    border-radius: 15px;
+    min-height: 200px;
+    padding: 10px;
+}
+
+.arena-placeholder-text {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    text-align: center;
+    color: rgba(0,0,0,0.3);
+    font-style: italic;
+    pointer-events: none;
+    font-size: 1.2rem;
+}
+
+/* --- 掉落的方块 (卡通化) 修复超出范围问题 --- */
+.falling-block {
+    position: absolute;
+    top: -60px;
+    max-width: 120px;
+    min-width: 60px;
+    padding: 10px 15px;
+    background: linear-gradient(to bottom right, #ffffff, #dedede);
+    border: 3px solid var(--theme-dark);
+    border-radius: 12px;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+    color: var(--theme-dark);
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    white-space: nowrap;
+    cursor: grab;
+    z-index: 100;
+    transition: none !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    
+    /* 触摸优化 */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.falling-block:active,
+.falling-block.touch-active {
+    cursor: grabbing;
+    transform: scale(0.95);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+/* 庆祝弹窗样式 */
+#celebration-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.celebration-content {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    border: var(--cartoon-border);
+    border-radius: 30px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 600px;
+    animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3) rotate(5deg); opacity: 0; }
+    50% { transform: scale(1.1) rotate(-2deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.celebration-header {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.celebration-header h2 {
+    color: #e74c3c;
+    font-size: 2.5rem;
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+    margin: 0;
+}
+
+.fireworks {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #ff0 0%, transparent 70%);
+    animation: firework 1.5s infinite;
+}
+
+@keyframes firework {
+    0% { transform: translateX(-50%) scale(0); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+}
+
+.celebration-stats {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px dashed var(--theme-blue);
+}
+
+.celebration-stats .stat-item {
+    background: transparent;
+    border: none;
+    padding: 15px 0;
+}
+
+.celebration-stats .stat-label {
+    font-size: 1.2rem;
+    color: var(--theme-dark);
+}
+
+.celebration-stats .stat-value {
+    font-size: 1.4rem;
+    color: #e74c3c;
+}
+
+.celebration-message {
+    margin: 30px 0;
+}
+
+.celebration-message p {
+    font-size: 1.3rem;
+    margin: 15px 0;
+    color: var(--theme-dark);
+}
+
+.celebration-btn {
+    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    font-size: 1.6rem;
+    padding: 20px;
+    margin-top: 20px;
+    animation: pulse 2s infinite;
+}
+
+.celebration-btn:hover {
+    background: linear-gradient(to right, #ff4b2b, #ff416c);
+    transform: translateY(-5px);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
+}
+
+/* 彩色星星特效 */
+.star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: yellow;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: starFall 3s linear infinite;
+}
+
+@keyframes starFall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(800px) rotate(360deg); opacity: 0; }
+}
+
+/* 彩带特效 */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 30px;
+    animation: confettiFall 5s linear infinite;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
+}
+
+/* 关卡过渡弹窗样式 */
+.phase-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.phase-transition-content {
+    background: white;
+    border: var(--cartoon-border);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: var(--cartoon-shadow);
+    transform: scale(0.9);
+    animation: bounceIn 0.5s forwards;
+    max-width: 500px;
+}
+
+.phase-transition-content h2 {
+    color: var(--theme-blue);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.phase-transition-content p {
+    color: var(--theme-dark);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* 响应式调整：在小屏幕上添加滚动 */
+@media screen and (max-width: 1350px) {
+    .center-container {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-height: 1000px) {
+    .center-container {
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+}
